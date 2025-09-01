@@ -173,8 +173,7 @@ docker run -d   --name alertmanager   -p 9093:9093   -v $(pwd)/alertmanager.yml:
 
 ## 📸 Screenshots
 
-(Add screenshots of Grafana panels here
-- Pull requests welcome! For major changes, please open an issue first.
+<img align="center" alt="Grafana Dasboard" width="400" src="https://github.com/adityar947/Monitoring-Azure-OpenAI-with-Prometheus-Grafana/blob/main/screenshot.png">
 
 ---
 

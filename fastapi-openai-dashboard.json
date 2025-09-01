@@ -1,0 +1,126 @@
+{
+  "id": null,
+  "title": "Azure OpenAI FastAPI Monitoring",
+  "tags": ["openai", "fastapi", "prometheus"],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "10s",
+  "panels": [
+    {
+      "title": "95th Percentile Latency (s)",
+      "type": "gauge",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, rate(openai_request_latency_seconds_bucket[5m]))",
+          "legendFormat": "p95 latency"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0,
+          "max": 5,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 3 },
+              { "color": "red", "value": 4 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Error Rate (%)",
+      "type": "gauge",
+      "targets": [
+        {
+          "expr": "(rate(openai_errors_total[5m]) / rate(openai_requests_total[5m])) * 100",
+          "legendFormat": "error rate"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 5,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 1 },
+              { "color": "red", "value": 3 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Token Usage Split",
+      "type": "piechart",
+      "targets": [
+        {
+          "expr": "openai_prompt_tokens_total",
+          "legendFormat": "Prompt Tokens"
+        },
+        {
+          "expr": "openai_completion_tokens_total",
+          "legendFormat": "Completion Tokens"
+        }
+      ]
+    },
+    {
+      "title": "Cost per 1k Requests ($)",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "(openai_cost_total / openai_requests_total) * 1000",
+          "legendFormat": "cost/1k req"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 2
+        }
+      }
+    },
+    {
+      "title": "Top 3 Users by Cost",
+      "type": "barchart",
+      "targets": [
+        {
+          "expr": "topk(3, openai_user_cost_total)",
+          "legendFormat": "{{user}}"
+        }
+      ]
+    },
+    {
+      "title": "Caching Savings (%)",
+      "type": "gauge",
+      "targets": [
+        {
+          "expr": "avg(openai_cache_savings_ratio) * 100",
+          "legendFormat": "cache savings"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 50,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 10 },
+              { "color": "red", "value": 25 }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

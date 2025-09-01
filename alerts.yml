@@ -1,0 +1,49 @@
+groups:
+  - name: openai-critical
+    rules:
+      - alert: OpenAIHighErrorRate
+        expr: (rate(openai_errors_total[5m]) / clamp_min(rate(openai_requests_total[5m]), 1)) > 0.01
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "OpenAI error rate > 1% (5m)"
+          description: "Error rate for OpenAI requests has been above 1% for the last 5m."
+
+      - alert: OpenAIHighLatencyP95
+        expr: histogram_quantile(0.95, sum(rate(openai_request_latency_seconds_bucket[5m])) by (le)) > 3
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "P95 latency > 3s"
+          description: "95th percentile latency exceeded 3s for the last 5m."
+
+      - alert: OpenAIRateLimitedSpike
+        expr: increase(openai_rate_limited_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Rate-limited by OpenAI"
+          description: "At least one rate-limited event detected in the last 5 minutes."
+
+      - alert: OpenAICostSpike
+        expr: increase(openai_cost_total[1h]) > 10
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Cost spike detected"
+          description: "Estimated OpenAI cost increased by more than $10 in the last 1 hour."
+
+  - name: openai-warning
+    rules:
+      - alert: OpenAIErrorRateHighButRecovering
+        expr: (rate(openai_errors_total[10m]) / clamp_min(rate(openai_requests_total[10m]),1)) > 0.005
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Elevated OpenAI error rate (0.5%)"
+          description: "Error rate above 0.5% for 10 minutes."
